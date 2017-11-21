@@ -1,3 +1,5 @@
+//Versão do corretor ortográfico utilizando AVL (árvore balanceada).
+
 /*********************************************************************************************
 * EDA 2017/2 - ESTRUTURAS DE DADOS E ALGORITMOS (Prof. Fernando W. Cruz)
 * Projeto  - Arvores e funcoes de hash
