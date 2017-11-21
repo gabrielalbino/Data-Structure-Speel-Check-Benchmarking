@@ -1,4 +1,3 @@
-//Versão do corretor ortográfico utilizando AVL (árvore balanceada).
 
 /*********************************************************************************************
 * EDA 2017/2 - ESTRUTURAS DE DADOS E ALGORITMOS (Prof. Fernando W. Cruz)
@@ -23,6 +22,15 @@
 #define ARQTEXTO_ERROABERTURA   3
 #define ARQTEXTO_ERROLEITURA    4
 #define ERRO_DICIO_NAOCARREGADO 5
+
+typedef struct palavras{
+    char palavra[TAM_MAX];
+    short int fb;
+    struct palavras* esq;
+    struct palavras* dir;
+}palavras;
+
+palavras* dicionario = NULL;
 
 /* Retorna true se a palavra estah no dicionario. Do contrario, retorna false */
 bool conferePalavra(const char *palavra) {
