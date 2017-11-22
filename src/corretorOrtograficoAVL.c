@@ -9,6 +9,8 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* Tamanho maximo de uma palavra do dicionario */
 #define TAM_MAX 45
@@ -30,7 +32,18 @@ typedef struct palavras{
     struct palavras* dir;
 }palavras;
 
-palavras* dicionario = NULL;
+palavras* palavrasDicionario = NULL;
+
+void imprimeDicionario(palavras* pAtual){
+	if(pAtual == NULL){
+		return;
+	}
+	else{
+		printf("%s, esq: %p, dir: %p\n", pAtual->palavra, pAtual->esq, pAtual->dir);
+		imprimeDicionario(pAtual->esq);
+		imprimeDicionario(pAtual->dir);
+	}
+}
 
 /* Retorna true se a palavra estah no dicionario. Do contrario, retorna false */
 bool conferePalavra(const char *palavra) {
@@ -40,12 +53,61 @@ bool conferePalavra(const char *palavra) {
     return false;
 } /* fim-conferePalavra */
 
+/* Lê uma palavra do arqivo. retorna a palavra se sucesso; senao retorna NULL */
+palavras* lerPalavraDoArquivo(FILE* pFile){
+    palavras* nova = (palavras*)malloc(sizeof(palavras));
+    if(nova != NULL)
+    {
+        nova->esq = NULL;
+        nova->dir = NULL;
+        fscanf(pFile, "%s", nova->palavra);
+    }/* fim if*/
+    return nova;
+} /* fim-lerPalavraDoArquivo */
+
+palavras* adicionaPalavraNaArvore(palavras* nova, palavras* arvore){
+    palavras* p = arvore;
+    if(p == NULL)
+    {
+	arvore = nova;
+    }/* fim if */
+    else
+    {
+	if(strcmp(nova->palavra, arvore->palavra) < 0) /* palavra nova < palavra da raiz */
+	{ 
+	    arvore->esq = adicionaPalavraNaArvore(nova, arvore->esq);
+	} /* fim if*/
+	else if(strcmp(nova->palavra, arvore->palavra) > 0) /* palavra nova > palavra da raiz */
+    	{
+	    arvore->dir = adicionaPalavraNaArvore(nova, arvore->dir);
+	}/* fim else */
+    }/* fim else*/
+    return arvore;
+}
+
 /* Carrega dicionario na memoria. Retorna true se sucesso; senao retorna false. */
 bool carregaDicionario(const char *dicionario) {
-
-    /* construa essa funcao */
-
-    return false;
+    int contador = 0;
+    FILE* pFile = fopen(dicionario, "r+");
+    palavras* nova = NULL, *p;
+    if(pFile == NULL)
+    {
+        return false;
+    }
+    else
+    {
+        while(!feof(pFile)){
+	    nova = lerPalavraDoArquivo(pFile);
+	    if(nova == NULL){
+		return false;
+	    }/*fim if */
+	    palavrasDicionario = adicionaPalavraNaArvore(nova, palavrasDicionario);
+	}
+    }
+    printf("dicionario: \n");
+    imprimeDicionario(palavrasDicionario);
+    getchar();
+    return true;
 } /* fim-carregaDicionario */
 
 
@@ -158,7 +220,7 @@ int main(int argc, char *argv[]) {
             tempo_check += calcula_tempo(&tempo_inicial, &tempo_final);
             /* imprime palavra se nao encontrada no dicionario */
             if (palavraErrada) {
-                printf("%s\n", palavra);
+                //printf("%s\n", palavra);
                 totPalErradas++;
             } /* fim-if */
             /* faz "reset" no indice para recuperar nova palavra no arquivo-texto*/
