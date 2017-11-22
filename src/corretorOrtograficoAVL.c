@@ -39,11 +39,27 @@ void imprimeDicionario(palavras* pAtual){
 		return;
 	}
 	else{
-		printf("%s, fb = %d, esq: %p, dir: %p\n", pAtual->palavra, pAtual->fb, pAtual->esq, pAtual->dir);
 		imprimeDicionario(pAtual->esq);
+		printf("%p: %s, fb = %d, esq: %p, dir: %p\n", pAtual, pAtual->palavra, pAtual->fb, pAtual->esq, pAtual->dir);
 		imprimeDicionario(pAtual->dir);
 	}
 }
+
+int calculaAlturaArvore(palavras* arvore){
+    int maiorAltura = 0;
+    if(arvore == NULL){
+	return 0;
+    }
+    else{
+	if(calculaAlturaArvore(arvore->esq) > calculaAlturaArvore(arvore->dir))
+	    maiorAltura = calculaAlturaArvore(arvore->esq);
+	else
+	    maiorAltura = calculaAlturaArvore(arvore->dir);
+
+	return 1+maiorAltura;
+    }
+}
+
 /* rotaciona para esquerda */
 palavras* rot_esq(palavras* p){
     palavras* q, *temp;
@@ -84,6 +100,54 @@ palavras* lerPalavraDoArquivo(FILE* pFile){
     return nova;
 } /* fim-lerPalavraDoArquivo */
 
+int calculaFB(palavras* arvore){
+	return calculaAlturaArvore(arvore->dir) - calculaAlturaArvore(arvore->esq);
+}
+
+void atualizaFB(palavras* arvore){
+	if(arvore == NULL){
+		return;
+	}
+	else{
+		arvore->fb = calculaFB(arvore);
+		atualizaFB(arvore->esq);
+		atualizaFB(arvore->dir);
+	}
+}
+
+palavras* balanceiaArvore(palavras* arvore){
+	if(arvore == NULL) return NULL;
+	arvore->fb = calculaFB(arvore);
+	if(arvore->fb < -1){
+	    if(calculaFB(arvore->esq) <= 0){
+		arvore = rot_dir(arvore);
+	    }
+	    else if(calculaFB(arvore->esq) > 0){
+		arvore->esq = rot_esq(arvore->esq);
+		arvore = rot_dir(arvore);
+	    }
+	}
+	else if(arvore->fb > 1){
+	    if(calculaFB(arvore->dir) >= 0){
+		arvore = rot_esq(arvore);
+	    }
+	    else if(calculaFB(arvore->dir) < 0){
+		arvore->dir = rot_dir(arvore->dir);
+		arvore = rot_esq(arvore);
+	    }
+	}
+	arvore->fb = calculaFB(arvore);
+	if(arvore->esq != NULL){
+	    arvore->esq->fb = calculaFB(arvore->esq);
+	    arvore->esq = balanceiaArvore(arvore->esq);
+	}
+	if(arvore->dir != NULL){
+	    arvore->dir->fb = calculaFB(arvore->dir);
+	    arvore->dir = balanceiaArvore(arvore->dir);
+	}
+	return arvore;
+}
+
 palavras* adicionaPalavraNaArvore(palavras* nova, palavras* arvore){
     palavras* p = arvore;
     if(p == NULL)
@@ -105,10 +169,6 @@ palavras* adicionaPalavraNaArvore(palavras* nova, palavras* arvore){
 	    arvore->dir = adicionaPalavraNaArvore(nova, arvore->dir);
 	}/* fim else */
     }/* fim else*/
-    if(arvore->fb < -1){
-    }
-    else if (arvore->fb > 1){
-    }
     return arvore;
 }
 
@@ -130,7 +190,14 @@ bool carregaDicionario(const char *dicionario) {
 	    }/*fim if */
 	    printf("Palavra lida: \"%s\"\n", nova->palavra);
 	    palavrasDicionario = adicionaPalavraNaArvore(nova, palavrasDicionario);
+	    printf("Fazendo balanceamento. Arvore Atual: \n");
+	    imprimeDicionario(palavrasDicionario);
+	    palavrasDicionario = balanceiaArvore(palavrasDicionario);
+	    printf("Arvore balanceada: \n");
+	    imprimeDicionario(palavrasDicionario);
+	    getchar();
 	}
+	atualizaFB(palavrasDicionario);
     }
     printf("dicionario: \n");
     imprimeDicionario(palavrasDicionario);
