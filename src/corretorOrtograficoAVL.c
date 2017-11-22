@@ -39,10 +39,28 @@ void imprimeDicionario(palavras* pAtual){
 		return;
 	}
 	else{
-		printf("%s, esq: %p, dir: %p\n", pAtual->palavra, pAtual->esq, pAtual->dir);
+		printf("%s, fb = %d, esq: %p, dir: %p\n", pAtual->palavra, pAtual->fb, pAtual->esq, pAtual->dir);
 		imprimeDicionario(pAtual->esq);
 		imprimeDicionario(pAtual->dir);
 	}
+}
+/* rotaciona para esquerda */
+palavras* rot_esq(palavras* p){
+    palavras* q, *temp;
+    q = p->dir;
+    temp = q->esq;
+    q->esq = p;
+    p->dir = temp;
+    return q;
+}
+/* rotaciona para direita */
+palavras* rot_dir(palavras* p){
+    palavras* q, *temp;
+    q = p->esq;
+    temp = q->dir;
+    q->dir = p;
+    p->esq = temp;
+    return q;
 }
 
 /* Retorna true se a palavra estah no dicionario. Do contrario, retorna false */
@@ -60,6 +78,7 @@ palavras* lerPalavraDoArquivo(FILE* pFile){
     {
         nova->esq = NULL;
         nova->dir = NULL;
+	nova->fb = 0;
         fscanf(pFile, "%s", nova->palavra);
     }/* fim if*/
     return nova;
@@ -73,7 +92,11 @@ palavras* adicionaPalavraNaArvore(palavras* nova, palavras* arvore){
     }/* fim if */
     else
     {
-	if(strcmp(nova->palavra, arvore->palavra) < 0) /* palavra nova < palavra da raiz */
+	if(strlen(nova->palavra) == 0) /* palavra nova = ultima linha (deve ser ignorada) */
+	{
+	    /* faz nada */
+        }
+	else if(strcmp(nova->palavra, arvore->palavra) < 0) /* palavra nova < palavra da raiz */
 	{ 
 	    arvore->esq = adicionaPalavraNaArvore(nova, arvore->esq);
 	} /* fim if*/
@@ -82,6 +105,10 @@ palavras* adicionaPalavraNaArvore(palavras* nova, palavras* arvore){
 	    arvore->dir = adicionaPalavraNaArvore(nova, arvore->dir);
 	}/* fim else */
     }/* fim else*/
+    if(arvore->fb < -1){
+    }
+    else if (arvore->fb > 1){
+    }
     return arvore;
 }
 
@@ -101,6 +128,7 @@ bool carregaDicionario(const char *dicionario) {
 	    if(nova == NULL){
 		return false;
 	    }/*fim if */
+	    printf("Palavra lida: \"%s\"\n", nova->palavra);
 	    palavrasDicionario = adicionaPalavraNaArvore(nova, palavrasDicionario);
 	}
     }
