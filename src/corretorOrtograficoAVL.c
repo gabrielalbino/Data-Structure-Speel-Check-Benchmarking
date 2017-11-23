@@ -188,14 +188,8 @@ bool carregaDicionario(const char *dicionario) {
 	    if(nova == NULL){
 		return false;
 	    }/*fim if */
-	    printf("Palavra lida: \"%s\"\n", nova->palavra);
 	    palavrasDicionario = adicionaPalavraNaArvore(nova, palavrasDicionario);
-	    printf("Fazendo balanceamento. Arvore Atual: \n");
-	    imprimeDicionario(palavrasDicionario);
 	    palavrasDicionario = balanceiaArvore(palavrasDicionario);
-	    printf("Arvore balanceada: \n");
-	    imprimeDicionario(palavrasDicionario);
-	    getchar();
 	}
 	atualizaFB(palavrasDicionario);
     }
@@ -205,13 +199,22 @@ bool carregaDicionario(const char *dicionario) {
     return true;
 } /* fim-carregaDicionario */
 
+int contaFilhos(palavras* arvore){
+    if(arvore == NULL)
+	return 0;
+    return 1 + contaFilhos(arvore->dir) + contaFilhos(arvore->esq);
+}/*fim contaFilhos*/
 
 /* Retorna qtde palavras do dicionario, se carregado; senao carregado retorna zero */
 unsigned int contaPalavrasDic(void) {
-
-    /* construa essa funcao */
-
-    return 0;
+    int contador = 0;
+    if(palavrasDicionario != NULL){
+	contador = contaFilhos(palavrasDicionario);
+    }
+    else{
+        /*do nothing*/
+    }
+    return contador;
 } /* fim-contaPalavrasDic */
 
 
