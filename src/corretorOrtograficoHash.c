@@ -10,6 +10,8 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <stdbool.h>
+#include<string.h>
+#include<stdlib.h>
 
 /* Tamanho maximo de uma palavra do dicionario */
 #define TAM_MAX 45
@@ -24,38 +26,84 @@
 #define ARQTEXTO_ERROLEITURA    4
 #define ERRO_DICIO_NAOCARREGADO 5
 
+bool *tab_hash;
+int tam_hash = 0;
+int contador = 0;
+
+unsigned int RSHash(const char* str, unsigned int len) {
+  unsigned int b = 378551;
+  unsigned int a = 63689;
+  unsigned int hash = 0;
+  unsigned int i = 0;
+  for(i = 0; i < len; str++, i++) { hash = hash * a + (*str);
+    a =a*b;
+  }
+   return hash;
+} /* End of RSHash */
+
+int lerPalavraDoArquivo(FILE* pFile){
+    char nova[TAM_MAX];
+      fscanf(pFile, "%s", nova);
+    return RSHash(nova, strlen(nova))%300000;
+}
+
 /* Retorna true se a palavra estah no dicionario. Do contrario, retorna false */
 bool conferePalavra(const char *palavra) {
-
-    /* construa essa funcao */
-
+    unsigned int hash = RSHash(palavra, strlen(palavra))%300000;
+    if(hash > tam_hash){
+      return false;
+    }
+    if(tab_hash[hash] == 1){
+      return true;
+    }
     return false;
 } /* fim-conferePalavra */
 
 /* Carrega dicionario na memoria. Retorna true se sucesso; senao retorna false. */
 bool carregaDicionario(const char *dicionario) {
+    int nova;
+    FILE* pFile = fopen(dicionario, "r+");
+    if(pFile == NULL)
+    {
+        return false;
+    }
 
-    /* construa essa funcao */
-
-    return false;
+    while(!feof(pFile)){
+      nova = lerPalavraDoArquivo(pFile);
+      if(nova > tam_hash){
+        tab_hash = realloc(tab_hash, (nova+1)*sizeof(bool));
+        for(int i = tam_hash+1; i < nova+1; i++)
+          tab_hash[i] = 0;
+        tam_hash = nova + 1;
+      }
+      tab_hash[nova] = 1;
+      ++contador;
+    }
+    return true;
 } /* fim-carregaDicionario */
+
+ /* fim-lerPalavraDoArquivo */
+
 
 
 /* Retorna qtde palavras do dicionario, se carregado; senao carregado retorna zero */
 unsigned int contaPalavrasDic(void) {
-
-    /* construa essa funcao */
-
-    return 0;
+    // int contador = -1;
+    // for(int i = 0; i < tam_hash; i++){
+    //   if(tab_hash[i] == 1){
+    //     contador++;
+    //   }
+    // }
+    return contador;
 } /* fim-contaPalavrasDic */
 
 
 /* Descarrega dicionario da memoria. Retorna true se ok e false se algo deu errado */
 bool descarregaDicionario(void) {
 
-    /* construa essa funcao */
+    free(tab_hash);
 
-    return false;
+    return true;
 } /* fim-descarregaDicionario */
 
 /* Retorna o numero de segundos entre a e b */
