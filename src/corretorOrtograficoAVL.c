@@ -34,7 +34,7 @@ typedef struct palavras{
 
 palavras* palavrasDicionario = NULL;
 
-void imprimeDicionario(palavras* pAtual){
+/*void imprimeDicionario(palavras* pAtual){
 	if(pAtual == NULL){
 		return;
 	}
@@ -43,7 +43,7 @@ void imprimeDicionario(palavras* pAtual){
 		printf("%p: %s, fb = %d, esq: %p, dir: %p\n", pAtual, pAtual->palavra, pAtual->fb, pAtual->esq, pAtual->dir);
 		imprimeDicionario(pAtual->dir);
 	}
-}
+}*/
 
 int calculaAlturaArvore(palavras* arvore){
     int maiorAltura = 0;
@@ -79,12 +79,29 @@ palavras* rot_dir(palavras* p){
     return q;
 }
 
+bool comparaPalavras(palavras* p,const char* pal){
+    if(p == NULL){
+	return false;
+    }
+    else if(strcmp(pal,p->palavra) == 0){
+        return true;
+    }
+    else if(strcmp(pal,p->palavra) < 0) /* palavra nova < palavra da raiz */
+    { 
+        return comparaPalavras(p->esq, pal);
+    } /* fim if*/
+    else if(strcmp(pal,p->palavra) > 0) /* palavra nova > palavra da raiz */
+    {
+        return comparaPalavras(p->dir, pal);
+    }/* fim else */
+    return false;
+}
+
+
 /* Retorna true se a palavra estah no dicionario. Do contrario, retorna false */
 bool conferePalavra(const char *palavra) {
-
-    /* construa essa funcao */
-
-    return false;
+    palavras* a = palavrasDicionario;
+    return comparaPalavras(a, palavra);
 } /* fim-conferePalavra */
 
 /* Lê uma palavra do arqivo. retorna a palavra se sucesso; senao retorna NULL */
@@ -149,8 +166,7 @@ palavras* balanceiaArvore(palavras* arvore){
 }
 
 palavras* adicionaPalavraNaArvore(palavras* nova, palavras* arvore){
-    palavras* p = arvore;
-    if(p == NULL)
+    if(arvore == NULL)
     {
 	arvore = nova;
     }/* fim if */
@@ -174,9 +190,9 @@ palavras* adicionaPalavraNaArvore(palavras* nova, palavras* arvore){
 
 /* Carrega dicionario na memoria. Retorna true se sucesso; senao retorna false. */
 bool carregaDicionario(const char *dicionario) {
-    int contador = 0;
     FILE* pFile = fopen(dicionario, "r+");
     palavras* nova = NULL, *p;
+    unsigned int contador = 0;
     if(pFile == NULL)
     {
         return false;
@@ -184,6 +200,7 @@ bool carregaDicionario(const char *dicionario) {
     else
     {
         while(!feof(pFile)){
+	    printf("palavra: %d\n", ++contador);
 	    nova = lerPalavraDoArquivo(pFile);
 	    if(nova == NULL){
 		return false;
@@ -193,8 +210,6 @@ bool carregaDicionario(const char *dicionario) {
 	}
 	atualizaFB(palavrasDicionario);
     }
-    printf("dicionario: \n");
-    imprimeDicionario(palavrasDicionario);
     getchar();
     return true;
 } /* fim-carregaDicionario */
@@ -217,12 +232,22 @@ unsigned int contaPalavrasDic(void) {
     return contador;
 } /* fim-contaPalavrasDic */
 
+void removeNo(palavras* no, int teste){
+	if(no == NULL){
+		return;
+	}
+	if(no->esq != NULL)
+		removeNo(no->esq, teste+1);
+	if(no->dir != NULL)
+		removeNo(no->dir, teste+1);
+	free(no);
+}/*fim-removeNo*/
 
 /* Descarrega dicionario da memoria. Retorna true se ok e false se algo deu errado */
 bool descarregaDicionario(void) {
-
-    /* construa essa funcao */
-
+    removeNo(palavrasDicionario, 0	);
+    palavrasDicionario = NULL; 
+    if(palavrasDicionario == NULL) return true;
     return false;
 } /* fim-descarregaDicionario */
 
@@ -318,7 +343,7 @@ int main(int argc, char *argv[]) {
             tempo_check += calcula_tempo(&tempo_inicial, &tempo_final);
             /* imprime palavra se nao encontrada no dicionario */
             if (palavraErrada) {
-                //printf("%s\n", palavra);
+                printf("%s\n", palavra);
                 totPalErradas++;
             } /* fim-if */
             /* faz "reset" no indice para recuperar nova palavra no arquivo-texto*/
