@@ -27,7 +27,7 @@
 #define ERRO_DICIO_NAOCARREGADO 5
 
 bool *tab_hash;
-int tam_hash = 0;
+unsigned int tam_hash = 0;
 
 unsigned int RSHash(const char* str, unsigned int len) {
   unsigned int b = 378551;
@@ -49,7 +49,7 @@ int lerPalavraDoArquivo(FILE* pFile){
 /* Retorna true se a palavra estah no dicionario. Do contrario, retorna false */
 bool conferePalavra(const char *palavra) {
     char newPalavra[TAM_MAX];
-    for(int i = 0; i <= strlen(palavra); i++){
+    for(unsigned int i = 0; i <= strlen(palavra); i++){
 	if(isalpha(palavra[i])){
 		newPalavra[i] = tolower(palavra[i]);
 	}
@@ -68,7 +68,7 @@ bool conferePalavra(const char *palavra) {
 
 /* Carrega dicionario na memoria. Retorna true se sucesso; senao retorna false. */
 bool carregaDicionario(const char *dicionario) {
-    int nova;
+    unsigned int nova;
     FILE* pFile = fopen(dicionario, "r+");
     if(pFile == NULL)
     {
@@ -79,7 +79,7 @@ bool carregaDicionario(const char *dicionario) {
       nova = lerPalavraDoArquivo(pFile);
       if(nova > tam_hash){
         tab_hash = realloc(tab_hash, (nova+1)*sizeof(bool));
-        for(int i = tam_hash+1; i < nova+1; i++)
+        for(unsigned int i = tam_hash+1; i < nova+1; i++)
           tab_hash[i] = 0;
         tam_hash = nova + 1;
       }
@@ -95,7 +95,7 @@ bool carregaDicionario(const char *dicionario) {
 /* Retorna qtde palavras do dicionario, se carregado; senao carregado retorna zero */
 unsigned int contaPalavrasDic(void) {
     int contador = -1;
-    for(int i = 0; i < tam_hash; i++){
+    for(unsigned int i = 0; i < tam_hash; i++){
        if(tab_hash[i] == 1){
          contador++;
        }
