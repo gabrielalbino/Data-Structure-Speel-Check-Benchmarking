@@ -1,4 +1,4 @@
-//Versão do corretor ortográfico utilizando Hash.
+	//Versão do corretor ortográfico utilizando Hash.
 
 /*********************************************************************************************
 * EDA 2017/2 - ESTRUTURAS DE DADOS E ALGORITMOS (Prof. Fernando W. Cruz)
@@ -28,7 +28,6 @@
 
 bool *tab_hash;
 int tam_hash = 0;
-int contador = 0;
 
 unsigned int RSHash(const char* str, unsigned int len) {
   unsigned int b = 378551;
@@ -49,7 +48,15 @@ int lerPalavraDoArquivo(FILE* pFile){
 
 /* Retorna true se a palavra estah no dicionario. Do contrario, retorna false */
 bool conferePalavra(const char *palavra) {
-    unsigned int hash = RSHash(palavra, strlen(palavra))%300000;
+    char newPalavra[TAM_MAX];
+    for(int i = 0; i <= strlen(palavra); i++){
+	if(isalpha(palavra[i])){
+		newPalavra[i] = tolower(palavra[i]);
+	}
+	else
+		newPalavra[i] = palavra[i];
+    }
+    unsigned int hash = RSHash(newPalavra, strlen(newPalavra))%300000;
     if(hash > tam_hash){
       return false;
     }
@@ -77,7 +84,6 @@ bool carregaDicionario(const char *dicionario) {
         tam_hash = nova + 1;
       }
       tab_hash[nova] = 1;
-      ++contador;
     }
     return true;
 } /* fim-carregaDicionario */
@@ -88,12 +94,12 @@ bool carregaDicionario(const char *dicionario) {
 
 /* Retorna qtde palavras do dicionario, se carregado; senao carregado retorna zero */
 unsigned int contaPalavrasDic(void) {
-    // int contador = -1;
-    // for(int i = 0; i < tam_hash; i++){
-    //   if(tab_hash[i] == 1){
-    //     contador++;
-    //   }
-    // }
+    int contador = -1;
+    for(int i = 0; i < tam_hash; i++){
+       if(tab_hash[i] == 1){
+         contador++;
+       }
+    }
     return contador;
 } /* fim-contaPalavrasDic */
 
