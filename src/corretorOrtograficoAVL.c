@@ -206,11 +206,10 @@ bool carregaDicionario(const char *dicionario) {
 		return false;
 	    }/*fim if */
 	    palavrasDicionario = adicionaPalavraNaArvore(nova, palavrasDicionario);
-	    palavrasDicionario = balanceiaArvore(palavrasDicionario);
+            palavrasDicionario = balanceiaArvore(palavrasDicionario);
 	}
 	atualizaFB(palavrasDicionario);
     }
-    getchar();
     return true;
 } /* fim-carregaDicionario */
 
