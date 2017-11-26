@@ -191,7 +191,7 @@ palavras* adicionaPalavraNaArvore(palavras* nova, palavras* arvore){
 /* Carrega dicionario na memoria. Retorna true se sucesso; senao retorna false. */
 bool carregaDicionario(const char *dicionario) {
     FILE* pFile = fopen(dicionario, "r+");
-    palavras* nova = NULL, *p;
+    palavras* nova = NULL;
     unsigned int contador = 0;
     if(pFile == NULL)
     {
