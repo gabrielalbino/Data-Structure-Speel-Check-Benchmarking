@@ -1,4 +1,4 @@
-# corretor-ortografico
+# Spell Check benchmarking using differente data structures
 Corretores Otográficos que utilizam estruturas de dados diferentes para carregar o dicionário para a memória
 ## Descrição geral
 ### Descrição do problema:
